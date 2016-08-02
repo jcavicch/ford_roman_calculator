@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/Cavicchio/roman/src/roman.c
+roman.h
+/home/Cavicchio/roman/src/roman.h
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+ctype.h
+-
+sys/types.h
+-
+regex.h
+-
+
+/home/Cavicchio/roman/src/roman.h
+stdlib.h
+-
+string.h
+-
+sys/types.h
+-
+

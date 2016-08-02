@@ -1,0 +1,18 @@
+# Create a library called "roman" which includes the source file "roman.c".
+# The extension is already found. Any number of sources could be listed here.
+add_library (roman roman.c)
+
+# Add executable called "main" that is built from the source file
+# "main.c. The extensions are automatically found.
+add_executable (main main.c)
+
+# Link the executable to the roman library. Since the roman library has
+# public include directories we will use those link directories when building
+# main
+target_link_libraries (main LINK_PUBLIC roman)
+
+
+# Make sure the compiler can find include files for our Hello library
+# when other libraries or executables link to roman
+target_include_directories (roman PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+

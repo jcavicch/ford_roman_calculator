@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/Cavicchio/roman/src/main.c
+stdlib.h
+-
+stdio.h
+-
+roman.h
+/home/Cavicchio/roman/src/roman.h
+
+/home/Cavicchio/roman/src/roman.h
+stdlib.h
+-
+string.h
+-
+sys/types.h
+-
+

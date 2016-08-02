@@ -1,0 +1,3 @@
+/home/Cavicchio/roman/tests/CMakeFiles/check_roman.dir
+/home/Cavicchio/roman/src/CMakeFiles/main.dir
+/home/Cavicchio/roman/src/CMakeFiles/roman.dir

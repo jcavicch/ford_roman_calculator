@@ -1,0 +1,9 @@
+# Add executable called "check_roman" that is built from the source file
+# "check_roman.c. The extensions are automatically found.
+add_executable (check_roman check_roman.c)
+
+# Link the executable to the roman library. Since the roman library has
+# public include directories we will use those link directories when building
+# check_roman
+target_link_libraries (check_roman LINK_PUBLIC roman check)
+
