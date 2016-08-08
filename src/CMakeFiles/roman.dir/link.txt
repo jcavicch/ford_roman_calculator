@@ -1,2 +1,0 @@
-/usr/bin/ar.exe cq libroman.a  CMakeFiles/roman.dir/roman.c.o
-/usr/bin/ranlib.exe libroman.a

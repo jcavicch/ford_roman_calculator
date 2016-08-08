@@ -1,0 +1,10 @@
+To build, simply execute the “make” command in the top level directory.
+ 
+To clean, simply execute the "make clean" command in the top level directory.  
+
+To run the unit tests from the top level directory, type ./exe/check_roman.  
+
+To run the main program from the top level directory, type  
+    ./exe/main MCV "+" CXLVII or 
+    ./exe/main MCV "-" CXLVII as two valid examples. 
+

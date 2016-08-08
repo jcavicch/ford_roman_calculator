@@ -13,6 +13,8 @@ int main(int argc, char **argv)
     RomanDigit_t     result_digits[80];
     RomanBool_t      initialize_status;
 
+    /* Initialize the roman numeral library. */
+
     initialize_status = roman_initialize_library();
     if (initialize_status == ROMAN_FALSE)
     {
@@ -20,6 +22,7 @@ int main(int argc, char **argv)
         exit(1);
     }
 
+    /* Check to ensure the argument count is valid. */
     if (argc != 4)
     {
         printf("main: Invalid argument count: %d.\n", argc);
@@ -27,10 +30,14 @@ int main(int argc, char **argv)
         exit(1);
     }
 
+    /* Setup the first roman numeral operand and copy the argument string. */
+
     numeral1.digits = digits1;
     numeral1.digits[0] = 0;
     numeral1.length = 0;
     strcpy(numeral1.digits, argv[1]);
+
+    /* Check to ensure the first roman numeral operand is valid. */
 
     if (roman_is_valid_numeral(&numeral1) == ROMAN_FALSE) 
     {
@@ -39,17 +46,23 @@ int main(int argc, char **argv)
         exit(1);
     }
 
+    /* Check to ensure the operator is a plus or a minus sign. */
+
     if ((strcmp(argv[2], "+") != 0) && (strcmp(argv[2], "-") != 0))
     {
         printf("main: Invalid operator entered: %s.\n", argv[2]);
         printf("main: Usage: main numeral1 [+,-] numeral2\n");
         exit(1);
     }
-    
+
+    /* Setup the second roman numeral operand and copy the argument string. */
+
     numeral2.digits = digits2;
     numeral2.digits[0] = 0;
     numeral2.length = 0;
     strcpy(numeral2.digits, argv[3]);
+
+    /* Check to ensure the second roman numeral operand is valid. */
 
     if (roman_is_valid_numeral(&numeral2) == ROMAN_FALSE) 
     {
@@ -58,9 +71,13 @@ int main(int argc, char **argv)
         exit(1);
     }
 
+    /* Setup the result roman numeral. */
+
     numeral_result.digits = result_digits;
     numeral_result.digits[0] = 0;
     numeral_result.length = 0;
+
+    /* Check to see if the specified operation is addition. */
 
     if (strcmp(argv[2], "+") == 0)
     {
@@ -75,6 +92,9 @@ int main(int argc, char **argv)
             exit(1);
         }
     }
+
+    /* Check to see if the specified operation is subtraction. */
+
     else if (strcmp(argv[2], "-") == 0)
     {
         result = roman_numeral_subtract(&numeral1, &numeral2, &numeral_result);

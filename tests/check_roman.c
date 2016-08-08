@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <check.h>
 #include "../src/roman.h"
 
@@ -2771,6 +2772,265 @@ START_TEST(test_roman_numeral_subtract)
 }
 END_TEST
 
+void convert_to_roman(RomanCount_t val, RomanNumeral_t *numeral) 
+{
+    const char *huns[] = {"", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"};
+    const char *tens[] = {"", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"};
+    const char *ones[] = {"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"};
+    const int   size[] = { 0,   1,    2,     3,    2,   1,    2,     3,      4,    2};
+
+    int idx = 0;
+
+    while (val >= 1000) 
+    {
+        numeral->digits[idx] = 'M';
+        idx++;
+        numeral->digits[idx] = 0;
+        val -= 1000;
+    }
+
+    strcat (numeral->digits, huns[val/100]); 
+    idx += size[val/100]; 
+    val = val % 100;
+
+    strcat (numeral->digits, tens[val/10]);  
+    idx += size[val/10];  
+    val = val % 10;
+
+    strcat (numeral->digits, ones[val]);
+    idx += size[val];
+
+    numeral->digits[idx] = 0;
+}
+
+int roman_digit_value(RomanDigit_t c)
+{
+
+    int value=0;
+
+    switch(c)
+    {
+         case 'I': value = 1; break;
+
+         case 'V': value = 5; break;
+
+         case 'X': value = 10; break;
+
+         case 'L': value = 50; break;
+
+         case 'C': value = 100; break;
+
+         case 'D': value = 500; break;
+
+         case 'M': value = 1000; break;
+
+         case '\0': value = 0; break;
+
+         default: value = -1;  
+    }
+
+    return value;
+}
+
+void roman_convert_to_integer(RomanNumeral_t *numeral, RomanCount_t *value)
+{
+    RomanCount_t i = 0;
+
+    *value = 0;
+
+    while (numeral->digits[i] > 0)
+    {
+
+         if (roman_digit_value(numeral->digits[i]) < 0)
+         {
+             printf("Invalid roman digit : %c", numeral->digits[i]);
+             *value = 0;
+         }
+
+         if ((strlen(numeral->digits) - i) > 2)
+         {
+
+             if (roman_digit_value(numeral->digits[i]) < roman_digit_value(numeral->digits[i+2]))
+             {
+
+                 printf("Invalid roman number");
+                 *value = 0;
+             }
+         }
+
+         if (roman_digit_value(numeral->digits[i]) >= roman_digit_value(numeral->digits[i+1]))
+         {
+             *value = *value + roman_digit_value(numeral->digits[i]);
+         }
+         else
+         {
+             *value = *value + (roman_digit_value(numeral->digits[i+1]) - roman_digit_value(numeral->digits[i]));
+             i++;
+         }
+         i++;
+    }
+}
+
+START_TEST(test_roman_numeral_add_all)
+{
+    RomanNumeral_t  addition_numeral1;
+    RomanNumeral_t  addition_numeral2;
+    RomanCount_t    addition_result1;
+    RomanCount_t    addition_result2;
+    char            add_digits1[80];
+    char            add_digits2[80];
+    int             compare_value;
+    char            digits1[80];
+    char            digits2[80];
+    RomanBool_t     initialize_status;
+    RomanNumeral_t  numeral1;
+    RomanNumeral_t  numeral2;
+    RomanBool_t     result;
+    RomanCount_t    value1;
+    RomanCount_t    value2;
+
+    initialize_status = roman_initialize_library();
+    ck_assert_msg(initialize_status == ROMAN_TRUE, "test_roman_numeral_add_all: expecting initialization status to be ROMAN_TRUE (1), but found a value of %d\n", initialize_status);
+
+#if 0
+
+    for (value1 = 0; value1 < 2000; value1++)
+    {
+        strcpy(digits1, "");
+        numeral1.digits = digits1;
+        numeral1.length = strlen(numeral1.digits);
+        convert_to_roman(value1, &numeral1);
+        printf("Roman numeral string for value 1 %d is %s\n", value1, numeral1.digits);
+    }
+    exit(0);
+#endif
+
+    for (value1 = 0; value1 < 1000; value1++)
+    {
+        strcpy(digits1, "");
+        numeral1.digits = digits1;
+        numeral1.length = strlen(numeral1.digits);
+        convert_to_roman(value1, &numeral1);
+        /* printf("Roman numeral string for value 1 %d is %s\n", value1, numeral1.digits); */
+
+        for (value2 = 0; value2 < 1000; value2++)
+        {
+            addition_result2 = value1 + value2;
+            strcpy(add_digits2, "");
+            addition_numeral2.digits = add_digits2;
+            addition_numeral2.length = strlen(addition_numeral2.digits);
+            convert_to_roman(addition_result2, &addition_numeral2);
+            addition_numeral2.length = strlen(addition_numeral2.digits);
+            /* printf("Roman numeral string for value add 2 %d is %s\n", addition_result2, addition_numeral2.digits); */
+
+            strcpy(digits2, "");
+            numeral2.digits = digits2;
+            numeral2.length = strlen(numeral2.digits);
+            convert_to_roman(value2, &numeral2);
+            /* printf("Roman numeral string for value 2 %d is %s\n", value2, numeral2.digits); */
+
+            strcpy(add_digits1, "");
+            addition_numeral1.digits = add_digits1;
+            addition_numeral1.length = strlen(addition_numeral1.digits);
+            result = roman_numeral_add(&numeral1, &numeral2, &addition_numeral1);
+            ck_assert_msg(result == ROMAN_TRUE, "test_roman_numeral_add_all: expecting add terms numeral for inputs %s and %s to be (1), but found a value of %d\n", numeral1.digits, numeral2.digits, result);
+            roman_convert_to_integer(&addition_numeral1, &addition_result1);
+            /* printf("Roman numeral string for value add 1 %d is %s\n", addition_result1, addition_numeral1.digits); */
+            compare_value = strcmp(addition_numeral1.digits, addition_numeral2.digits);
+            ck_assert_msg(compare_value == 0, "test_roman_numeral_add_all: expecting add terms numeral for inputs %s and %s to be %s (0), but found a value of %d\n", numeral1.digits, numeral2.digits, addition_numeral1.digits, compare_value);
+            ck_assert_msg(addition_numeral1.length == addition_numeral2.length, "test_roman_numeral_add_all: expecting valid addition numeral result for inputs %s and %s to be (1), but found a value of 0\n", addition_numeral1.length, addition_numeral2.length);
+        }
+    }
+}
+END_TEST
+
+START_TEST(test_roman_numeral_subtract_all)
+{
+    RomanBool_t     compare_result;
+    int             compare_value;
+    char            digits1[80];
+    char            digits2[80];
+    RomanBool_t     initialize_status;
+    RomanNumeral_t  numeral1;
+    RomanNumeral_t  numeral2;
+    RomanBool_t     result;
+    RomanNumeral_t  subtraction_numeral1;
+    RomanNumeral_t  subtraction_numeral2;
+    RomanCount_t    subtraction_result1;
+    RomanCount_t    subtraction_result2;
+    char            subtract_digits1[80];
+    char            subtract_digits2[80];
+    RomanCount_t    value1;
+    RomanCount_t    value2;
+
+    initialize_status = roman_initialize_library();
+    ck_assert_msg(initialize_status == ROMAN_TRUE, "test_roman_numeral_subtract_all: expecting initialization status to be ROMAN_TRUE (1), but found a value of %d\n", initialize_status);
+
+#if 0
+
+    for (value1 = 0; value1 < 2000; value1++)
+    {
+        strcpy(digits1, "");
+        numeral1.digits = digits1;
+        numeral1.length = strlen(numeral1.digits);
+        convert_to_roman(value1, &numeral1);
+        printf("Roman numeral string for value 1 %d is %s\n", value1, numeral1.digits);
+    }
+    exit(0);
+#endif
+
+    for (value1 = 0; value1 < 2000; value1++)
+    {
+        strcpy(digits1, "");
+        numeral1.digits = digits1;
+        numeral1.length = strlen(numeral1.digits);
+        convert_to_roman(value1, &numeral1);
+        numeral1.length = strlen(numeral1.digits);
+        /* printf("Roman numeral string for value 1 %d is %s\n", value1, numeral1.digits); */
+
+        for (value2 = 0; value2 < 2000; value2++)
+        {
+            strcpy(subtract_digits2, "");
+            subtraction_numeral2.digits = subtract_digits2;
+            subtraction_numeral2.length = strlen(subtraction_numeral2.digits);
+
+            if (value1 >= value2)
+            {
+                subtraction_result2 = value1 - value2;
+                compare_result = ROMAN_TRUE;
+                convert_to_roman(subtraction_result2, &subtraction_numeral2);
+                subtraction_numeral2.length = strlen(subtraction_numeral2.digits);
+                /* printf("Roman numeral string for value add 2 %d is %s\n", subtraction_result2, subtraction_numeral2.digits); */
+            }
+            else
+            {
+                subtraction_result2 = 0;
+                compare_result = ROMAN_FALSE;
+            }
+
+            strcpy(digits2, "");
+            numeral2.digits = digits2;
+            numeral2.length = strlen(numeral2.digits);
+            convert_to_roman(value2, &numeral2);
+            numeral2.length = strlen(numeral2.digits);
+            /* printf("Roman numeral string for value 2 %d is %s\n", value2, numeral2.digits); */
+
+            strcpy(subtract_digits1, "");
+            subtraction_numeral1.digits = subtract_digits1;
+            subtraction_numeral1.length = strlen(subtraction_numeral1.digits);
+
+            result = roman_numeral_subtract(&numeral1, &numeral2, &subtraction_numeral1);
+            subtraction_numeral1.length = strlen(subtraction_numeral1.digits);
+            ck_assert_msg(result == compare_result, "test_roman_numeral_subtract_all: expecting subtract terms numeral for inputs %s and %s to be (1), but found values of %d and %d\n", numeral1.digits, numeral2.digits, result, compare_result);
+            roman_convert_to_integer(&subtraction_numeral1, &subtraction_result1);
+            compare_value = strcmp(subtraction_numeral1.digits, subtraction_numeral2.digits);
+            ck_assert_msg(compare_value == 0, "test_roman_numeral_subtract_all: expecting subtract terms numeral for inputs %s and %s to be %s (0), but found a value of %d\n", numeral1.digits, numeral2.digits, subtraction_numeral1.digits, compare_value);
+            ck_assert_msg(subtraction_numeral1.length == subtraction_numeral2.length, "test_roman_numeral_subtract_all: expecting valid addition numeral result for inputs %s and %s to be (1), but found values %d and %d of 0\n", numeral1.digits, numeral2.digits, subtraction_numeral1.length, subtraction_numeral2.length);
+        }
+    }
+}
+END_TEST
+
 Suite * roman_suite(void)
 {
     Suite *s;
@@ -2780,6 +3040,8 @@ Suite * roman_suite(void)
 
     /* Core test case */
     tc_core = tcase_create("Core");
+
+    tcase_set_timeout(tc_core, 720);
 
     tcase_add_test(tc_core, test_roman_initialization);
     tcase_add_test(tc_core, test_roman_valid_digits);
@@ -2792,12 +3054,14 @@ Suite * roman_suite(void)
     tcase_add_test(tc_core, test_roman_subtract_terms);
     tcase_add_test(tc_core, test_roman_numeral_add);
     tcase_add_test(tc_core, test_roman_numeral_subtract);
+    tcase_add_test(tc_core, test_roman_numeral_add_all);
+    tcase_add_test(tc_core, test_roman_numeral_subtract_all);
     suite_add_tcase(s, tc_core);
 
     return s;
 }
 
-int main(char **argv, int argc)
+int main(int argc, char **argv)
 {
     int number_failed;
     Suite *s;
